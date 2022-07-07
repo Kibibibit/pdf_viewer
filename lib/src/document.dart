@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:advance_pdf_viewer/src/page.dart';
 import 'package:flutter/services.dart';
@@ -19,7 +19,7 @@ class PDFDocument {
   /// Load a PDF File from a given File
   /// [File file], file to be loaded
   ///
-  static Future<PDFDocument> fromFile(File file) async {
+  static Future<PDFDocument> fromFile(io.File file) async {
     final document = PDFDocument();
     document._filePath = file.path;
     try {
@@ -59,15 +59,15 @@ class PDFDocument {
   /// [String asset] path of the asset to be loaded
   ///
   static Future<PDFDocument> fromAsset(String asset) async {
-    File file;
+    io.File file;
     try {
       final dir = await getApplicationDocumentsDirectory();
-      file = File("${dir.path}/${DateTime.now().millisecondsSinceEpoch}.pdf");
+      file = io.File("${dir.path}/${DateTime.now().millisecondsSinceEpoch}.pdf");
       final data = await rootBundle.load(asset);
       final bytes = data.buffer.asUint8List();
       await file.writeAsBytes(bytes, flush: true);
     } catch (e) {
-      throw Exception('Error parsing asset file!');
+      throw Exception('Error parsing asset file!: ${e}');
     }
     final document = PDFDocument();
     document._filePath = file.path;
@@ -76,7 +76,7 @@ class PDFDocument {
           .invokeMethod('getNumberOfPages', {'filePath': file.path});
       document.count = document.count = int.parse(pageCount as String);
     } catch (e) {
-      throw Exception('Error reading PDF!');
+      throw Exception('Error reading PDF! ${e}');
     }
     return document;
   }
